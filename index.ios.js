@@ -11,7 +11,7 @@ var constants = {
   CaptureTarget: NativeModules.CameraManager.CaptureTarget,
   Orientation: NativeModules.CameraManager.Orientation,
   FlashMode: NativeModules.CameraManager.FlashMode,
-  TorchMode: NativeModules.CameraManager.TorchMode
+  TorchMode: NativeModules.CameraManager.TorchMode,
 };
 
 var Camera = React.createClass({
@@ -34,6 +34,10 @@ var Camera = React.createClass({
       PropTypes.number
     ]),
     orientation: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.number
+    ]),
+    pictureOrientation: PropTypes.oneOfType([
       PropTypes.string,
       PropTypes.number
     ]),
@@ -84,7 +88,7 @@ var Camera = React.createClass({
 
   componentWillUnmount() {
     this.cameraBarCodeReadListener.remove();
-
+    
     if (this.state.isRecording) {
       this.stopCapture();
     }
@@ -96,6 +100,7 @@ var Camera = React.createClass({
     var aspect = this.props.aspect,
         type = this.props.type,
         orientation = this.props.orientation,
+        pictureOrientation = this.props.pictureOrientation,
         flashMode = this.props.flashMode,
         torchMode = this.props.torchMode;
 
@@ -120,7 +125,7 @@ var Camera = React.createClass({
     if (typeof aspect === 'string') {
       aspect = constants.Aspect[aspect];
     }
-
+    
     if (typeof flashMode === 'string') {
       flashMode = constants.FlashMode[flashMode];
     }
@@ -129,6 +134,13 @@ var Camera = React.createClass({
       orientation = constants.Orientation[orientation];
     }
 
+    if (typeof pictureOrientation === 'string') {
+      pictureOrientation = constants.Orientation[pictureOrientation];
+    }
+
+    if (pictureOrientation === undefined)
+      pictureOrientation = orientation;
+    
     if (typeof torchMode === 'string') {
       torchMode = constants.TorchMode[torchMode];
     }
@@ -143,7 +155,8 @@ var Camera = React.createClass({
       type: type,
       orientation: orientation,
       flashMode: flashMode,
-      torchMode: torchMode
+      torchMode: torchMode,
+      pictureOrientation: pictureOrientation
     });
 
     return <RCTCamera ref={CAMERA_REF} {... nativeProps} />;
@@ -169,7 +182,7 @@ var Camera = React.createClass({
     if (typeof options.mode === 'string') {
       options.mode = constants.CaptureMode[options.mode];
     }
-
+    
     if (options.mode === constants.CaptureMode.video) {
       options.totalSeconds = (options.totalSeconds > -1 ? options.totalSeconds : -1);
       options.preferredTimeScale = options.preferredTimeScale || 30;
@@ -199,6 +212,4 @@ var styles = StyleSheet.create({
 });
 
 Camera.constants = constants;
-Camera.checkDeviceAuthorizationStatus = NativeModules.CameraManager.checkDeviceAuthorizationStatus
-
 module.exports = Camera;

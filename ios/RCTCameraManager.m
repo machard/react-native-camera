@@ -10,7 +10,9 @@
 #import <AVFoundation/AVFoundation.h>
 #import <ImageIO/ImageIO.h>
 
-@implementation RCTCameraManager
+@implementation RCTCameraManager {
+    NSInteger _pictureOrientation;
+}
 
 RCT_EXPORT_MODULE();
 
@@ -28,6 +30,7 @@ RCT_EXPORT_MODULE();
 RCT_EXPORT_VIEW_PROPERTY(aspect, NSInteger);
 RCT_EXPORT_VIEW_PROPERTY(type, NSInteger);
 RCT_EXPORT_VIEW_PROPERTY(orientation, NSInteger);
+RCT_EXPORT_VIEW_PROPERTY(pictureOrientation, NSInteger);
 RCT_EXPORT_VIEW_PROPERTY(flashMode, NSInteger);
 RCT_EXPORT_VIEW_PROPERTY(torchMode, NSInteger);
 
@@ -215,6 +218,10 @@ RCT_EXPORT_METHOD(changeOrientation:(NSInteger)orientation) {
   self.previewLayer.connection.videoOrientation = orientation;
 }
 
+RCT_EXPORT_METHOD(changePictureOrientation:(NSInteger)orientation) {
+    _pictureOrientation = orientation;
+}
+
 RCT_EXPORT_METHOD(changeTorchMode:(NSInteger)torchMode) {
   AVCaptureDevice *device = [self.videoCaptureDeviceInput device];
   NSError *error = nil;
@@ -250,7 +257,7 @@ RCT_EXPORT_METHOD(stopCapture) {
 #if TARGET_IPHONE_SIMULATOR
   return;
 #endif
-	
+  
   dispatch_async(self.sessionQueue, ^{
     if (self.presetCamera == AVCaptureDevicePositionUnspecified) {
       self.presetCamera = AVCaptureDevicePositionBack;
@@ -296,7 +303,7 @@ RCT_EXPORT_METHOD(stopCapture) {
 #if TARGET_IPHONE_SIMULATOR
   return;
 #endif
-	
+  
   dispatch_async(self.sessionQueue, ^{
     [self.previewLayer removeFromSuperlayer];
     [self.session stopRunning];
@@ -373,7 +380,7 @@ RCT_EXPORT_METHOD(stopCapture) {
       NSData *imageData = UIImageJPEGRepresentation(image, 1.0);
       [self saveImage:imageData target:target metadata:nil callback:callback];
 #else
-      [[self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo] setVideoOrientation:self.previewLayer.connection.videoOrientation];
+      [[self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo] setVideoOrientation:[self pictureOrientation]];
 
       [self.stillImageOutput captureStillImageAsynchronouslyFromConnection:[self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo] completionHandler:^(CMSampleBufferRef imageDataSampleBuffer, NSError *error) {
 
@@ -521,7 +528,7 @@ RCT_EXPORT_METHOD(stopCapture) {
   }
 
   dispatch_async(self.sessionQueue, ^{
-    [[self.movieFileOutput connectionWithMediaType:AVMediaTypeVideo] setVideoOrientation:self.previewLayer.connection.videoOrientation];
+    [[self.movieFileOutput connectionWithMediaType:AVMediaTypeVideo] setVideoOrientation:[self pictureOrientation]];
 
     //Create temporary URL to record to
     NSString *outputPath = [[NSString alloc] initWithFormat:@"%@%@", NSTemporaryDirectory(), @"output.mov"];
@@ -737,6 +744,14 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
     } else {
         NSLog(@"error: %@", error);
     }
+}
+
+- (NSInteger) pictureOrientation {
+    if (_pictureOrientation) {
+        return _pictureOrientation;
+    }
+    
+    return self.previewLayer.connection.videoOrientation;
 }
 
 

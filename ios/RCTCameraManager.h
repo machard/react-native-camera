@@ -65,6 +65,8 @@ typedef NS_ENUM(NSInteger, RCTCameraTorchMode) {
 - (void)changeAspect:(NSString *)aspect;
 - (void)changeCamera:(NSInteger)camera;
 - (void)changeOrientation:(NSInteger)orientation;
+- (void)changePictureOrientation:(NSInteger)orientation;
+- (NSInteger)pictureOrientation;
 - (void)changeFlashMode:(NSInteger)flashMode;
 - (void)changeTorchMode:(NSInteger)torchMode;
 - (AVCaptureDevice *)deviceWithMediaType:(NSString *)mediaType preferringPosition:(AVCaptureDevicePosition)position;
