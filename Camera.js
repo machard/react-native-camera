@@ -35,6 +35,13 @@ function convertStringProps(props) {
     newProps.orientation = CONSTANTS.Orientation[props.orientation];
   }
 
+  if (typeof props.pictureOrientation === 'string') {
+    newProps.pictureOrientation = constants.Orientation[props.pictureOrientation];
+  }
+
+  if (props.pictureOrientation === undefined)
+    newProps.pictureOrientation = newProps.orientation;
+
   if (typeof props.torchMode === 'string') {
     newProps.torchMode = CONSTANTS.TorchMode[props.torchMode];
   }
@@ -74,6 +81,10 @@ export default class Camera extends Component {
     onFocusChanged: PropTypes.func,
     onZoomChanged: PropTypes.func,
     orientation: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.number
+    ]),
+    pictureOrientation: PropTypes.oneOfType([
       PropTypes.string,
       PropTypes.number
     ]),

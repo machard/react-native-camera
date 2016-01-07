@@ -59,6 +59,11 @@
   }
 }
 
+- (void)setPictureOrientation:(NSInteger)orientation
+{
+    [self.manager changePictureOrientation:orientation];
+}
+
 - (void)setFlashMode:(NSInteger)flashMode
 {
   [self.manager changeFlashMode:flashMode];

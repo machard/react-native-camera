@@ -10,7 +10,9 @@
 #import <AVFoundation/AVFoundation.h>
 #import <ImageIO/ImageIO.h>
 
-@implementation RCTCameraManager
+@implementation RCTCameraManager {
+    NSInteger _pictureOrientation;
+}
 
 RCT_EXPORT_MODULE();
 
@@ -28,6 +30,7 @@ RCT_EXPORT_MODULE();
 RCT_EXPORT_VIEW_PROPERTY(aspect, NSInteger);
 RCT_EXPORT_VIEW_PROPERTY(type, NSInteger);
 RCT_EXPORT_VIEW_PROPERTY(orientation, NSInteger);
+RCT_EXPORT_VIEW_PROPERTY(pictureOrientation, NSInteger);
 RCT_EXPORT_VIEW_PROPERTY(flashMode, NSInteger);
 RCT_EXPORT_VIEW_PROPERTY(torchMode, NSInteger);
 
@@ -214,6 +217,10 @@ RCT_EXPORT_METHOD(changeFlashMode:(NSInteger)flashMode) {
 
 RCT_EXPORT_METHOD(changeOrientation:(NSInteger)orientation) {
   self.previewLayer.connection.videoOrientation = orientation;
+}
+
+RCT_EXPORT_METHOD(changePictureOrientation:(NSInteger)orientation) {
+    _pictureOrientation = orientation;
 }
 
 RCT_EXPORT_METHOD(changeTorchMode:(NSInteger)torchMode) {
@@ -429,7 +436,7 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
       NSData *imageData = UIImageJPEGRepresentation(image, 1.0);
       [self saveImage:imageData target:target metadata:nil resolve:resolve reject:reject];
 #else
-      [[self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo] setVideoOrientation:self.previewLayer.connection.videoOrientation];
+      [[self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo] setVideoOrientation:[self pictureOrientation]];
 
       [self.stillImageOutput captureStillImageAsynchronouslyFromConnection:[self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo] completionHandler:^(CMSampleBufferRef imageDataSampleBuffer, NSError *error) {
 
@@ -585,7 +592,7 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
   }
 
   dispatch_async(self.sessionQueue, ^{
-    [[self.movieFileOutput connectionWithMediaType:AVMediaTypeVideo] setVideoOrientation:self.previewLayer.connection.videoOrientation];
+    [[self.movieFileOutput connectionWithMediaType:AVMediaTypeVideo] setVideoOrientation:[self pictureOrientation]];
 
     //Create temporary URL to record to
     NSString *outputPath = [[NSString alloc] initWithFormat:@"%@%@", NSTemporaryDirectory(), @"output.mov"];
@@ -818,5 +825,14 @@ didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL
         NSLog(@"error: %@", error);
     }
 }
+
+- (NSInteger) pictureOrientation {
+    if (_pictureOrientation) {
+        return _pictureOrientation;
+    }
+    
+    return self.previewLayer.connection.videoOrientation;
+}
+
 
 @end
