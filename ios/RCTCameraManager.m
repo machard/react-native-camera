@@ -335,17 +335,20 @@ RCT_EXPORT_METHOD(hasFlash:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRej
 #if TARGET_IPHONE_SIMULATOR
   return;
 #endif
-  dispatch_async(self.sessionQueue, ^{
+  dispatch_async(dispatch_get_main_queue(), ^{
     [self.previewLayer removeFromSuperlayer];
-    [self.session stopRunning];
-    for(AVCaptureInput *input in self.session.inputs) {
-      [self.session removeInput:input];
-    }
-
-    for(AVCaptureOutput *output in self.session.outputs) {
-      [self.session removeOutput:output];
-    }
+    dispatch_async(self.sessionQueue, ^{
+        [self.session stopRunning];
+        for(AVCaptureInput *input in self.session.inputs) {
+            [self.session removeInput:input];
+        }
+        
+        for(AVCaptureOutput *output in self.session.outputs) {
+            [self.session removeOutput:output];
+        }
+    });
   });
+
 }
 
 - (void)initializeCaptureSessionInput:(NSString *)type {
