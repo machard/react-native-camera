@@ -10,27 +10,37 @@ import React, {
 
 const CameraManager = NativeModules.CameraManager || NativeModules.CameraModule;
 const CAMERA_REF = 'camera';
+const CONSTANTS = {
+  Aspect: CameraManager.Aspect,
+  BarCodeType: CameraManager.BarCodeType,
+  Type: CameraManager.Type,
+  CaptureMode: CameraManager.CaptureMode,
+  CaptureTarget: CameraManager.CaptureTarget,
+  Orientation: CameraManager.Orientation,
+  FlashMode: CameraManager.FlashMode,
+  TorchMode: CameraManager.TorchMode
+};
 
 function convertStringProps(props) {
   const newProps = { ...props };
   if (typeof props.aspect === 'string') {
-    newProps.aspect = Camera.constants.Aspect[props.aspect];
+    newProps.aspect = CONSTANTS.Aspect[props.aspect];
   }
 
   if (typeof props.flashMode === 'string') {
-    newProps.flashMode = Camera.constants.FlashMode[props.flashMode];
+    newProps.flashMode = CONSTANTS.FlashMode[props.flashMode];
   }
 
   if (typeof props.orientation === 'string') {
-    newProps.orientation = Camera.constants.Orientation[props.orientation];
+    newProps.orientation = CONSTANTS.Orientation[props.orientation];
   }
 
   if (typeof props.torchMode === 'string') {
-    newProps.torchMode = Camera.constants.TorchMode[props.torchMode];
+    newProps.torchMode = CONSTANTS.TorchMode[props.torchMode];
   }
 
   if (typeof props.type === 'string') {
-    newProps.type = Camera.constants.Type[props.type];
+    newProps.type = CONSTANTS.Type[props.type];
   }
   
   return newProps;
@@ -38,16 +48,7 @@ function convertStringProps(props) {
 
 export default class Camera extends Component {
   
-  static constants = {
-    Aspect: CameraManager.Aspect,
-    BarCodeType: CameraManager.BarCodeType,
-    Type: CameraManager.Type,
-    CaptureMode: CameraManager.CaptureMode,
-    CaptureTarget: CameraManager.CaptureTarget,
-    Orientation: CameraManager.Orientation,
-    FlashMode: CameraManager.FlashMode,
-    TorchMode: CameraManager.TorchMode
-  };
+  static constants = CONSTANTS;
   
   static propTypes = {
     ...View.propTypes,
@@ -87,15 +88,15 @@ export default class Camera extends Component {
   };
   
   static defaultProps = {
-    aspect: Camera.constants.Aspect.fill,
-    type: Camera.constants.Type.back,
-    orientation: Camera.constants.Orientation.auto,
+    aspect: CONSTANTS.Aspect.fill,
+    type: CONSTANTS.Type.back,
+    orientation: CONSTANTS.Orientation.auto,
     captureAudio: true,
-    captureMode: Camera.constants.CaptureMode.still,
-    captureTarget: Camera.constants.CaptureTarget.cameraRoll,
+    captureMode: CONSTANTS.CaptureMode.still,
+    captureTarget: CONSTANTS.CaptureTarget.cameraRoll,
     defaultOnFocusComponent: true,
-    flashMode: Camera.constants.FlashMode.off,
-    torchMode: Camera.constants.TorchMode.off
+    flashMode: CONSTANTS.FlashMode.off,
+    torchMode: CONSTANTS.TorchMode.off
   };
   
   static checkDeviceAuthorizationStatus = CameraManager.checkDeviceAuthorizationStatus;
@@ -145,7 +146,7 @@ export default class Camera extends Component {
       ...options
     };
 
-    if (options.mode === Camera.constants.CaptureMode.video) {
+    if (options.mode === CONSTANTS.CaptureMode.video) {
       options.totalSeconds = (options.totalSeconds > -1 ? options.totalSeconds : -1);
       options.preferredTimeScale = options.preferredTimeScale || 30;
       this.setState({ isRecording: true });
