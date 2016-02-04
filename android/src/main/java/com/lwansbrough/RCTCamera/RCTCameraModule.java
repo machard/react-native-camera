@@ -57,6 +57,8 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
         _reactContext = reactContext;
     }
 
+
+
     @Override
     public String getName() {
         return "RCTCameraModule";
@@ -176,7 +178,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
                         promise.resolve(url);
                         break;
                     case RCT_CAMERA_CAPTURE_TARGET_DISK:
-                        File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
+                        File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE, options.getString("androidPath"));
                         if (pictureFile == null) {
                             promise.reject("Error creating media file.");
                             return;
@@ -222,9 +224,8 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
         // TODO: implement video capture
     }
 
-    private File getOutputMediaFile(int type) {
-        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES), "RCTCameraModule");
+    private File getOutputMediaFile(int type, String path) {
+        File mediaStorageDir = new File(path);
 
         // Create the storage directory if it does not exist
         if (!mediaStorageDir.exists()) {
