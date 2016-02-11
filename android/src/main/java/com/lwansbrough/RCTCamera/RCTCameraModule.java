@@ -7,6 +7,7 @@ package com.lwansbrough.RCTCamera;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.hardware.Camera;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -188,6 +189,49 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
                             FileOutputStream fos = new FileOutputStream(pictureFile);
                             fos.write(data);
                             fos.close();
+
+                            if (options.hasKey("metadata") && options.getMap("metadata").hasKey("location")) {
+                                ReadableMap location = options.getMap("metadata").getMap("location").getMap("coords");
+                                ExifInterface exif = new ExifInterface(pictureFile.getAbsolutePath());
+
+
+
+                                String altitudeRef;
+                                double altitude = location.getDouble("altitude");
+                                if (location.getDouble("altitude") < 0) {
+                                    altitudeRef = "1";
+                                    altitude = -altitude;
+                                } else {
+                                    altitudeRef = "0";
+                                }
+                                exif.setAttribute("GPSAltitude", String.valueOf(altitude));
+                                exif.setAttribute("GPSAltitudeRef", altitudeRef);
+
+                                String latitudeRef;
+                                double latitude = location.getDouble("altitude");
+                                if (location.getDouble("latitude") < 0) {
+                                    latitudeRef = "S";
+                                    latitude = -latitude;
+                                } else {
+                                    latitudeRef = "N";
+                                }
+                                exif.setAttribute("GPSLatitude", String.valueOf(latitude));
+                                exif.setAttribute("GPSLatitudeRef", latitudeRef);
+
+
+                                String longitudeRef;
+                                double longitude = location.getDouble("altitude");
+                                if (location.getDouble("longitude") < 0) {
+                                    longitudeRef = "W";
+                                    longitude = -longitude;
+                                } else {
+                                    longitudeRef = "E";
+                                }
+                                exif.setAttribute("GPSLongitude", String.valueOf(longitude));
+                                exif.setAttribute("GPSLongitudeRef", longitudeRef);
+
+                                exif.saveAttributes();
+                            }
                         } catch (FileNotFoundException e) {
                             promise.reject("File not found: " + e.getMessage());
                         } catch (IOException e) {
